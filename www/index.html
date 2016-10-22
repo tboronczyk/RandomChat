@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Random Chat</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/RandomChat.js"></script>
+ </head>
+ <body>
+  <div id="chat"></div>
+  <script>
+(function () {
+    var chat = new RandomChat("ws://" + window.location.host + ":8080");
+    document.getElementById("chat").appendChild(chat.window());
+})();
+  </script>
+ </body>
+</html>

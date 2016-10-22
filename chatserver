@@ -1,0 +1,80 @@
+#! /usr/bin/php
+<?php
+require 'vendor/autoload.php';
+
+use Ratchet\ConnectionInterface;
+use Ratchet\Http\HttpServer;
+use Ratchet\MessageComponentInterface;
+use Ratchet\Server\IoServer;
+use Ratchet\WebSocket\WsServer;
+
+class ChatServer implements MessageComponentInterface
+{
+    protected $convos;
+    protected $queue;
+
+    public function __construct() {
+        $this->convos = [];
+        $this->queue = [];
+    }
+
+    public function onOpen(ConnectionInterface $conn) {
+        // place the user in the queue if there are no others waiting
+        if (empty($this->queue)) {
+            $this->queue[$conn->resourceId] = $conn;
+            return;
+        }
+
+        // connect the user with a random partner waiting in the queue
+        $id = array_rand($this->queue, 1);
+        $this->convos[$conn->resourceId] = $this->queue[$id];
+        $this->convos[$id] = $conn;
+        // the partner is no longer waiting
+        unset($this->queue[$id]);
+
+        // notify both users a connection has been made
+        $msg = json_encode(['event' => 'connected']);
+        $this->convos[$conn->resourceId]->send($msg);
+        $this->convos[$id]->send($msg);
+    }
+
+    public function onMessage(ConnectionInterface $conn, $msg) {
+        // do nothing if the user doesn't have a chat partner
+        if (!isset($this->convos[$conn->resourceId])) {
+            return;
+        }
+
+        // send the user's message to their partner
+        $conn2 = $this->convos[$conn->resourceId];
+        $conn2->send(json_encode(['event' => 'message', 'text' => $msg]));
+    }
+
+    public function onClose(ConnectionInterface $conn) {
+        // remove the user from the queue if they are waiting
+        if (isset($this->queue[$conn->resourceId])) {
+            unset($this->queue[$conn->resourceId]);
+            return;
+        }
+
+        // notify the user's partner they disconnected
+        $conn2 = $this->convos[$conn->resourceId];
+        $conn2->send(json_encode(['event' => 'disconnected']));
+
+        // delete the connection
+        unset($this->convos[$conn->resourceId]);
+        unset($this->convos[$conn2->resourceId]);
+
+        // the user's partner is free to chat with someone else
+        $this->onOpen($conn2);
+    }
+
+    public function onError(ConnectionInterface $conn, Exception $e) {
+        $this->onClose($conn);
+    }
+}
+
+$server = IoServer::factory(
+    new HttpServer(new WsServer(new ChatServer)), 8080
+);
+
+$server->run();

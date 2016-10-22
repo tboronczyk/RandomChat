@@ -1,0 +1,40 @@
+body {
+  color: #333;
+  font: 16px/1.25 Arial, "Helvetica Neue", Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.chat-log {
+  flex-grow: 1;
+  overflow: auto;
+  padding: 10px;
+}
+
+.chat-log div {
+  margin-bottom: 8px;
+}
+
+.chat-input {
+  height: 70px;
+  min-height: 70px;
+  outline: 1px solid #666;
+  overflow: auto;
+  padding: 4px;
+}
+
+.msg-user {
+  color: #999;
+}
+
+.msg-sys {
+  color: #F00;
+}
