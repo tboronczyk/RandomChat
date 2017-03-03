@@ -73,8 +73,13 @@ class ChatServer implements MessageComponentInterface
     }
 }
 
+if (!isset($_SERVER['argv'][1])) {
+    fprintf(STDERR, 'Usage: ' . basename($_SERVER['argv'][0]) . " [port]\n");
+    exit(1);
+}
+
 $server = IoServer::factory(
-    new HttpServer(new WsServer(new ChatServer)), 8080
+    new HttpServer(new WsServer(new ChatServer)), $_SERVER['argv'][1]
 );
 
 $server->run();
