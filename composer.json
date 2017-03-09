@@ -1,5 +1,8 @@
 {
     "require": {
         "cboden/ratchet": "^0.3.5"
+    },
+    "require-dev": {
+        "phing/phing": "^2.16"
     }
 }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="RandomChat" default="build">
+
+ <property name="srcDir" value="${phing.dir}/src" />
+ <property name="buildDir" value="${phing.dir}/dist" />
+
+ <target name="lint" depends="lint-php,lint-js,lint-css">
+ </target>
+
+ <target name="lint-php">
+  <echo msg="Lint PHP source files" />
+ </target>
+
+ <target name="lint-js">
+  <echo msg="Lint JavaScript source files" />
+ </target>
+
+ <target name="lint-css">
+  <echo msg="Lint CSS source files" />
+ </target>
+
+ <target name="build" depends="build-php,build-js,build-css">
+ </target>
+
+ <target name="build-php" depends="lint-php">
+  <echo msg="Copy PHP source files" />
+  <copy todir="${buildDir}/www">
+   <fileset dir="${srcDir}">
+    <include name="**/*" />
+    <exclude name="chatserver" />
+   </fileset>
+  </copy>
+  <copy file="${srcDir}/chatserver" todir="${buildDir}" />
+ </target>
+
+ <target name="build-js" depends="lint-js">
+  <echo msg="Compile JavaScript source files" />
+ </target>
+
+ <target name="build-css" depends="lint-css">
+  <echo msg="Compile CSS source files" />
+ </target>
+
+ <target name="clean">
+  <echo msg="Clean build artifacts" />
+  <delete dir="${buildDir}" includeemptydirs="true" />
+ </target>
+</project>
